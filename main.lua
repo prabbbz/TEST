@@ -1,4 +1,16 @@
 -- [[ PRABBBZ OMNIPOTENT V4 - SOURCE ]] --
+-- [[ PRABBBZ OMNIPOTENT V4 - FIXED ]] --
+local adminName = "lonelyXreyy2"
+local player = game:GetService("Players").LocalPlayer
+
+-- Pengecekan User (Case Insensitive agar lebih aman)
+if player.Name:lower() ~= adminName:lower() then 
+    warn("Unauthorized User: " .. player.Name) 
+    return 
+end
+
+-- Lanjut ke skrip UI dan fitur...
+print("Welcome, " .. player.Name .. "! Omnipotent V4 Loaded.")
 if game.Players.LocalPlayer.Name ~= _G.AdminName then 
     warn("Unauthorized User Detected.") 
     return 
