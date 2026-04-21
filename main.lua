@@ -1,108 +1,81 @@
--- [[ PRABBBZ OMNIPOTENT - UNIVERSAL PUBLIC VERSION ]] --
--- Semua orang yang eksekusi otomatis jadi admin di menu ini
+-- [[ PRABBBZ OMNIPOTENT V5 - CLIENT EXECUTOR EDITION ]] --
+-- Gunakan di Solara/Wave/dll. 
+-- Skrip ini otomatis mencari celah agar tidak muncul error "Non-local player"
 
 local Players = game:GetService("Players")
-local LP = Players.LocalPlayer -- Mendeteksi siapa pun yang menjalankan skrip
+local LP = Players.LocalPlayer
 
--- 1. SISTEM PENYIMPANAN BAN (Global Server Memory)
-shared.P_Bans = shared.P_Bans or {}
-
--- 2. LOGIKA EKSEKUSI (Server-Side)
-local function executeAction(actionType, targetName, execPlayer)
-    local function getT(n) return Players:FindFirstChild(n) end
-
-    if actionType == "KICK" then
-        local target = getT(targetName)
-        if target then target:Kick("\n[ADMIN ACTION]\nKicked by: " .. execPlayer.Name) end
-    
-    elseif actionType == "BAN" then
-        local target = getT(targetName)
-        if target then
-            shared.P_Bans[target.Name] = true
-            target:Kick("\n[ADMIN ACTION]\nBanned by: " .. execPlayer.Name)
+-- 1. SCANNER ENGINE (Mencari Remote yang bisa di-abuse)
+local function FindVulnerableRemote()
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("RemoteEvent") then
+            local name = v.Name:lower()
+            -- Daftar nama remote yang biasanya punya akses Kick/Admin
+            if name:find("kick") or name:find("ban") or name:find("admin") or name:find("control") or name:find("mod") then
+                return v
+            end
         end
-        
-    elseif actionType == "KALL" then
+    end
+    return nil
+end
+
+-- 2. ACTION HANDLER
+local function DoAction(action, targetName)
+    local target = Players:FindFirstChild(targetName)
+    local remote = FindVulnerableRemote()
+
+    if not remote then
+        print("❌ GAGAL: Tidak ditemukan RemoteEvent yang bocor di map ini.")
+        return
+    end
+
+    if action == "KICK" and target then
+        -- Mencoba berbagai format argumen yang biasanya dipakai developer
+        remote:FireServer(target, "Kicked by PRABBBZ")
+        remote:FireServer(target.Name, "Kicked by PRABBBZ")
+        remote:FireServer("Kick", target)
+    elseif action == "KALL" then
         for _, p in pairs(Players:GetPlayers()) do
-            if p ~= execPlayer then p:Kick("Server Cleared.") end
-        end
-        
-    elseif actionType == "BALL" then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= execPlayer then
-                shared.P_Bans[p.Name] = true
-                p:Kick("Server Blacklisted.")
+            if p ~= LP then
+                remote:FireServer(p, "Server Wiped")
             end
         end
     end
 end
 
--- 3. AUTO-BAN REJOIN
-if not _G.GlobalBanActive then
-    _G.GlobalBanActive = true
-    Players.PlayerAdded:Connect(function(p)
-        if shared.P_Bans[p.Name] then
-            p:Kick("You are banned from this server.")
-        end
+-- 3. UI GENERATOR (Pasti Muncul karena ini Client-Side)
+local sg = Instance.new("ScreenGui", game:GetService("CoreGui"))
+sg.Name = "Prabbbz_V5"
+
+local f = Instance.new("Frame", sg)
+f.Size = UDim2.new(0, 220, 0, 260)
+f.Position = UDim2.new(0.5, -110, 0.4, 0)
+f.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+f.Active = true
+f.Draggable = true
+Instance.new("UICorner", f)
+
+local t = Instance.new("TextBox", f)
+t.Size = UDim2.new(0.9, 0, 0, 35)
+t.Position = UDim2.new(0.05, 0, 0.2, 0)
+t.PlaceholderText = "Username Target..."
+t.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+t.TextColor3 = Color3.new(1, 1, 1)
+
+local function btn(txt, y, act)
+    local b = Instance.new("TextButton", f)
+    b.Size = UDim2.new(0.9, 0, 0, 40)
+    b.Position = UDim2.new(0.05, 0, y, 0)
+    b.Text = txt
+    b.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+    b.TextColor3 = Color3.new(1, 1, 1)
+    Instance.new("UICorner", b)
+    b.MouseButton1Click:Connect(function()
+        DoAction(act, t.Text)
     end)
 end
 
--- 4. UI GENERATOR (Universal Injector)
-local function buildMenu(plr)
-    -- Hapus menu lama jika ada
-    if plr.PlayerGui:FindFirstChild("PrabbbzPublic") then
-        plr.PlayerGui.PrabbbzPublic:Destroy()
-    end
+btn("BYPASS KICK", 0.4, "KICK")
+btn("BYPASS KICK ALL", 0.6, "KALL")
 
-    local sg = Instance.new("ScreenGui", plr.PlayerGui)
-    sg.Name = "PrabbbzPublic"
-    sg.ResetOnSpawn = false
-
-    local f = Instance.new("Frame", sg)
-    f.Size = UDim2.new(0, 220, 0, 280)
-    f.Position = UDim2.new(0.5, -110, 0.4, 0)
-    f.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-    f.Active = true
-    f.Draggable = true
-    Instance.new("UICorner", f)
-
-    local title = Instance.new("TextLabel", f)
-    title.Size = UDim2.new(1, 0, 0, 35)
-    title.Text = "PRABBBZ OMNI [PUBLIC]"
-    title.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-    title.TextColor3 = Color3.new(1, 1, 1)
-    title.Font = Enum.Font.GothamBold
-    Instance.new("UICorner", title)
-
-    local input = Instance.new("TextBox", f)
-    input.Size = UDim2.new(0.9, 0, 0, 35)
-    input.Position = UDim2.new(0.05, 0, 0.18, 0)
-    input.PlaceholderText = "Target Username..."
-    input.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    input.TextColor3 = Color3.new(1, 1, 1)
-
-    local function createBtn(text, yPos, color, act)
-        local btn = Instance.new("TextButton", f)
-        btn.Size = UDim2.new(0.9, 0, 0, 35)
-        btn.Position = UDim2.new(0.05, 0, yPos, 0)
-        btn.Text = text
-        btn.BackgroundColor3 = color
-        btn.TextColor3 = Color3.new(1, 1, 1)
-        Instance.new("UICorner", btn)
-
-        btn.MouseButton1Click:Connect(function()
-            executeAction(act, input.Text, plr)
-        end)
-    end
-
-    createBtn("KICK PLAYER", 0.35, Color3.fromRGB(50, 50, 50), "KICK")
-    createBtn("BAN PLAYER", 0.50, Color3.fromRGB(100, 0, 0), "BAN")
-    createBtn("KICK ALL", 0.65, Color3.fromRGB(130, 0, 0), "KALL")
-    createBtn("BAN ALL", 0.80, Color3.fromRGB(70, 0, 0), "BALL")
-end
-
--- Langsung jalankan untuk siapa pun yang eksekusi
-if LP then
-    buildMenu(LP)
-    print("Omnipotent Loaded for: " .. LP.Name)
-end
+print("V5 Loaded. Scanning for Remotes...")
