@@ -1,74 +1,95 @@
--- [[ PRABBBZ OMNI HUB V8 - FIXED & CLEAN ]] --
-local Players = game:GetService("Players")
-local LP = Players.LocalPlayer
+--[[ 
+    PRABBBZ CREATOR - Admin Utility Interface
+    Catatan: Fungsi Kick/Ban hanya bekerja jika game memiliki 
+    RemoteEvent yang terekspos tanpa pengecekan sisi server.
+]]
 
--- 1. UI SETUP (CoreGui agar tidak terdeteksi script map)
-local sg = Instance.new("ScreenGui")
-sg.Name = "OmniHubV8"
-sg.Parent = game:GetService("CoreGui")
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local ScrollingFrame = Instance.new("ScrollingFrame")
+local Title = Instance.new("TextLabel")
+local UIListLayout = Instance.new("UIListLayout")
 
-local Main = Instance.new("Frame", sg)
-Main.Size = UDim2.new(0, 280, 0, 320)
-Main.Position = UDim2.new(0.5, -140, 0.4, 0)
-Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-Main.Active = true
-Main.Draggable = true
-Instance.new("UICorner", Main)
+-- Setup UI Dasar
+ScreenGui.Parent = game:GetService("CoreGui") -- Biar ga hilang pas reset
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
+MainFrame.Size = UDim2.new(0, 300, 0, 400)
+MainFrame.Active = true
+MainFrame.Draggable = true
 
-local Header = Instance.new("TextLabel", Main)
-Header.Size = UDim2.new(1, 0, 0, 40)
-Header.Text = "PRABBBZ OMNI V8"
-Header.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
-Header.TextColor3 = Color3.new(1, 1, 1)
-Header.Font = Enum.Font.GothamBold
-Instance.new("UICorner", Header)
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "ADMIN PANEL - PRABBBZ"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 
--- 2. FUNGSI LOADER (Link Terverifikasi Aktif 2026)
-local function SafeLoad(id)
-    local success, err = pcall(function()
-        if id == "IY" then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
-        elseif id == "CMDX" then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/CMD-X/CMD-X/master/Source"))()
-        elseif id == "NAMELESS" then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()
-        elseif id == "FATES" then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/fatesc/fates-admin/main/main.lua"))()
+ScrollingFrame.Parent = MainFrame
+ScrollingFrame.Position = UDim2.new(0, 0, 0, 45)
+ScrollingFrame.Size = UDim2.new(1, 0, 1, -45)
+ScrollingFrame.BackgroundTransparency = 1
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 2, 0)
+
+UIListLayout.Parent = ScrollingFrame
+UIListLayout.Padding = UDim.new(0, 5)
+
+-- Fungsi Helper untuk mencari Remote
+local function FireServerAction(action, target)
+    -- Mencoba mencari RemoteEvent yang mungkin bisa dieksploitasi
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("RemoteEvent") and (v.Name:lower():find("admin") or v.Name:lower():find("kick")) then
+            v:FireServer(action, target)
         end
-    end)
-    
-    if not success then
-        warn("Gagal load script: " .. tostring(err))
     end
 end
 
--- 3. TOMBOL GENERATOR
-local function AddBtn(txt, y, id)
-    local b = Instance.new("TextButton", Main)
-    b.Size = UDim2.new(0.9, 0, 0, 40)
-    b.Position = UDim2.new(0.05, 0, 0, y)
-    b.Text = txt
-    b.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    b.TextColor3 = Color3.new(1, 1, 1)
-    b.Font = Enum.Font.Gotham
-    Instance.new("UICorner", b)
-    
-    b.MouseButton1Click:Connect(function()
-        SafeLoad(id)
-    end)
+-- Template Tombol
+local function CreateButton(text, callback)
+    local btn = Instance.new("TextButton")
+    btn.Parent = ScrollingFrame
+    btn.Size = UDim2.new(0.9, 0, 0, 35)
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.MouseButton1Click:Connect(callback)
 end
 
-AddBtn("INFINITE YIELD", 60, "IY")
-AddBtn("CMD-X (Full Features)", 115, "CMDX")
-AddBtn("NAMELESS ADMIN", 170, "NAMELESS")
-AddBtn("FATES ADMIN", 225, "FATES")
+-- FITUR: KICK & BAN
+CreateButton("Kick All Players", function()
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p ~= game.Players.LocalPlayer then
+            FireServerAction("kick", p)
+        end
+    end
+end)
 
-local Close = Instance.new("TextButton", Main)
-Close.Size = UDim2.new(1, 0, 0, 25)
-Close.Position = UDim2.new(0, 0, 0.92, 0)
-Close.Text = "CLOSE MENU"
-Close.BackgroundTransparency = 1
-Close.TextColor3 = Color3.fromRGB(150, 150, 150)
-Close.MouseButton1Click:Connect(function() sg:Destroy() end)
+CreateButton("Ban All (Shadow)", function()
+    -- Simulasi Ban dengan loop kick
+    FireServerAction("ban", "all")
+end)
 
-print("Omni Hub V8 Loaded Successfully!")
+-- FITUR: COPY MAP (Local Save)
+CreateButton("Copy Map (SaveInstance)", function()
+    -- Catatan: Executor level tinggi biasanya punya fungsi 'saveinstance()'
+    if saveinstance then
+        saveinstance()
+        print("Map saved to workspace folder!")
+    else
+        print("Executor kamu tidak support saveinstance.")
+    end
+end)
+
+-- FITUR: COPY AVATAR (Non-Visual / Real)
+CreateButton("Copy Targeted Avatar", function()
+    local targetName = "PlayerNameDisini" -- Bisa dikembangkan dengan TextBox
+    local target = game.Players:FindFirstChild(targetName)
+    if target and target.Character then
+        local lplr = game.Players.LocalPlayer
+        lplr.CharacterAppearanceId = target.UserId
+        -- Refresh character untuk apply (hanya bekerja di beberapa game)
+    end
+end)
+
+print("Panel Loaded.")
